@@ -1,3 +1,5 @@
+colorCountsObj = {}
+
 function componentToHex(c) {
     var hex = c.toString(16);
     return hex.length == 1 ? "0" + hex : hex;
@@ -7,6 +9,26 @@ function rgbToHex(r, g, b) {
     return componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
+function calculateColorCounts(arr, pal) {
+
+  colorCountsObj = {};
+
+  for(var i=0; i<arr.length; i=i+4){
+    var color = rgbToHex(arr[i], arr[i+1], arr[i+2]);
+
+    if(colorCountsObj.hasOwnProperty(color)){
+      colorCountsObj[color].count += 1;
+    }
+    else{
+      colorCountsObj[color] = {
+        "count" : 1
+      }
+    }
+
+  }
+
+  return colorCountsObj;
+}
 
 
 let img;
@@ -30,8 +52,6 @@ let opts = {
 
 let q = new RgbQuant(opts);
 
-
-
 document.addEventListener("DOMContentLoaded", function () {
   img = new Image();
   img.width = 40;
@@ -44,20 +64,17 @@ document.addEventListener("DOMContentLoaded", function () {
     var ctx = c.getContext("2d");
     ctx.drawImage(img, 0, 0, c.width, c.height);
 
-    data = ctx.getImageData(0, 0, 1, 1).data;
-
     // analyze histograms
     q.sample(img);
 
     // build palette
-    // pal = q.palette();
+    pal = q.palette();
 
     // reduce images
-    outA = q.reduce(img)
+    outA = q.reduce(ctx);
 
+    calculatedColorCountsObj = calculateColorCounts(outA, pal);
 
-
-    console.log(data);
   }
   // img.src = "/Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg";
   // // img.src = "/FF4D00-0.8.png";
